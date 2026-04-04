@@ -1,8 +1,40 @@
 import express from 'express';
 import Content from '../models/Content.js';
+import HomePageContent from '../models/HomePageContent.js';
 import { protect, adminOnly } from '../middleware/authMiddleware.js';
 
 const router = express.Router();
+
+// Get home page content
+router.get('/homepage', async (req, res) => {
+  try {
+    let content = await HomePageContent.findOne();
+    if (!content) {
+      // Create default if it doesn't exist
+      content = await HomePageContent.create({});
+    }
+    res.json(content);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+});
+
+// Update home page content (Admin only)
+router.put('/homepage', protect, adminOnly, async (req, res) => {
+  try {
+    let content = await HomePageContent.findOne();
+    if (!content) {
+      content = new HomePageContent(req.body);
+    } else {
+      Object.assign(content, req.body);
+    }
+    content.updatedBy = req.user.id;
+    await content.save();
+    res.json(content);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+});
 
 // Get content by key
 router.get('/:key', async (req, res) => {
