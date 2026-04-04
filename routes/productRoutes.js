@@ -27,11 +27,7 @@ router.get('/', async (req, res) => {
   const { category, minPrice, maxPrice, sort, placement } = req.query;
   
   try {
-    // Force mock if DB is not 100% ready
-    if (mongoose.connection.readyState !== 1) {
-      console.log('>>> DB Connection not active (READYSTATE:', mongoose.connection.readyState, '). Serving MOCK DATA.');
-      return sendProducts(res, mockProducts, category);
-    }
+
 
     let query = {};
     if (category && category !== 'All') query.category = category;
@@ -67,10 +63,7 @@ router.get('/', async (req, res) => {
 // Get single product
 router.get('/:id', async (req, res) => {
   try {
-    if (mongoose.connection.readyState !== 1) {
-      const p = mockProducts.find(p => p._id === req.params.id);
-      return p ? res.json(p) : res.status(404).json({ message: 'Product not found' });
-    }
+
     const product = await Product.findById(req.params.id);
     if (!product) {
       const p = mockProducts.find(p => p._id === req.params.id);
