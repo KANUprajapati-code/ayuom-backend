@@ -17,13 +17,29 @@ const PORT = process.env.PORT || 5000;
 app.use(cors());
 app.use(express.json());
 
-// MongoDB Connection
-mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost:27017/wedome', {
-  serverSelectionTimeoutMS: 5000,
-  socketTimeoutMS: 45000,
-})
-  .then(() => console.log('Connected to MongoDB'))
-  .catch(err => console.error('MongoDB connection error on initial load:', err));
+// Serverless MongoDB Connection Middleware
+app.use(async (req, res, next) => {
+  if (mongoose.connection.readyState === 1) {
+    return next();
+  }
+  
+  if (mongoose.connection.readyState === 2) {
+    // Already connecting, just proceed and let Mongoose buffer
+    return next();
+  }
+
+  try {
+    await mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost:27017/wedome', {
+      serverSelectionTimeoutMS: 5000,
+      socketTimeoutMS: 45000,
+    });
+    console.log('Connected to MongoDB (Serverless cold start)');
+    next();
+  } catch (err) {
+    console.error('MongoDB connection error on initial load:', err);
+    res.status(500).json({ message: 'Database connecting error. Please check IP Whitelist.', error: err.message });
+  }
+});
 
 mongoose.connection.on('disconnected', () => {
   console.warn('⚠️ MongoDB disconnected! Attempting to reconnect...');
