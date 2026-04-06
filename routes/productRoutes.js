@@ -78,9 +78,9 @@ router.get('/:id', async (req, res) => {
 
 // Create Product (Admin Only)
 router.post('/', protect, async (req, res) => {
-  const { name, price, originalPrice, category, image, description, showOnShop, showOnHome, showOnSchemes } = req.body;
+  const { name, price, originalPrice, category, image, description, stock, showOnShop, showOnHome, showOnSchemes } = req.body;
   try {
-    const product = new Product({ name, price, originalPrice, category, image, description, showOnShop, showOnHome, showOnSchemes });
+    const product = new Product({ name, price, originalPrice, category, image, description, stock, showOnShop, showOnHome, showOnSchemes });
     await product.save();
     res.status(201).json(product);
   } catch (err) {
