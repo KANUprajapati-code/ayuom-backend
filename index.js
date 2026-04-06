@@ -9,6 +9,7 @@ import authRoutes from './routes/authRoutes.js';
 import contentRoutes from './routes/contentRoutes.js';
 import categoryRoutes from './routes/categoryRoutes.js';
 import schemeRoutes from './routes/schemeRoutes.js';
+import pageRoutes from './routes/pageRoutes.js';
 
 dotenv.config();
 
@@ -63,6 +64,7 @@ app.use('/api/auth', authRoutes);
 app.use('/api/content', contentRoutes);
 app.use('/api/categories', categoryRoutes);
 app.use('/api/schemesData', schemeRoutes);
+app.use('/api/pages', pageRoutes);
 
 // Basic Route
 app.get('/', (req, res) => {
