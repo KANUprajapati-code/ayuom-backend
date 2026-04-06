@@ -7,6 +7,8 @@ import orderRoutes from './routes/orderRoutes.js';
 import adminRoutes from './routes/adminRoutes.js';
 import authRoutes from './routes/authRoutes.js';
 import contentRoutes from './routes/contentRoutes.js';
+import categoryRoutes from './routes/categoryRoutes.js';
+import schemeRoutes from './routes/schemeRoutes.js';
 
 dotenv.config();
 
@@ -59,6 +61,8 @@ app.use('/api/orders', orderRoutes);
 app.use('/api/admin', adminRoutes);
 app.use('/api/auth', authRoutes);
 app.use('/api/content', contentRoutes);
+app.use('/api/categories', categoryRoutes);
+app.use('/api/schemesData', schemeRoutes);
 
 // Basic Route
 app.get('/', (req, res) => {
