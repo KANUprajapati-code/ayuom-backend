@@ -33,10 +33,13 @@ const homePageContentSchema = new mongoose.Schema({
   
   trustItem1Title: { type: String, default: "Quality Assured" },
   trustItem1Desc: { type: String, default: "Every batch verified for authenticity and storage standards." },
+  trustItem1Img: { type: String, default: "" },
   trustItem2Title: { type: String, default: "Express Delivery" },
   trustItem2Desc: { type: String, default: "Priority shipping for clinics within 24-48 hours nationwide." },
+  trustItem2Img: { type: String, default: "" },
   trustItem3Title: { type: String, default: "B2B Compliance" },
   trustItem3Desc: { type: String, default: "Optimized for VAT/GST invoices and professional record-keeping." },
+  trustItem3Img: { type: String, default: "" },
 
   // ABOUT PAGE
   aboutMissionTitle: { type: String, default: "Empowering Health Through Excellence" },
