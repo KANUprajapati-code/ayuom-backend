@@ -4,7 +4,7 @@ export const protect = (req, res, next) => {
   const token = req.headers.authorization?.split(' ')[1];
   
   if (!token) {
-    return res.status(401).json({ message: 'Not authorized, no token' });
+    return res.status(401).json({ message: 'Authentication required: No token provided' });
   }
 
   try {
@@ -12,7 +12,8 @@ export const protect = (req, res, next) => {
     req.user = decoded; // Store the full decoded object {id, role}
     next();
   } catch (error) {
-    res.status(401).json({ message: 'Not authorized, token failed' });
+    const message = error.name === 'TokenExpiredError' ? 'Session expired: Please log in again' : 'Invalid session: Authentication failed';
+    res.status(401).json({ message });
   }
 };
 
