@@ -67,6 +67,9 @@ app.use('/api/schemesData', schemeRoutes);
 app.use('/api/pages', pageRoutes);
 
 // Basic Route
+import bulkOrderRoutes from './routes/bulkOrderRoutes.js';
+app.use('/api/bulk-orders', bulkOrderRoutes);
+
 app.get('/', (req, res) => {
   res.send('Wedome API is running...');
 });
