@@ -8,7 +8,8 @@ const userSchema = new mongoose.Schema({
   role: { type: String, enum: ['user', 'admin'], default: 'user' },
   isApproved: { type: Boolean, default: false },
   clinicName: { type: String },
-  phone: { type: String }
+  phone: { type: String },
+  medicalRegId: { type: String }
 }, { timestamps: true });
 
 userSchema.pre('save', async function() {

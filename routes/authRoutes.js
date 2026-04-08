@@ -1,13 +1,14 @@
 import express from 'express';
 import jwt from 'jsonwebtoken';
 import { User } from '../models/User.js';
+import Admin from '../models/Admin.js';
 
 const router = express.Router();
 
 // Register User
 router.post('/register', async (req, res) => {
   try {
-    const { name, email, password, clinicName, phone } = req.body;
+    const { name, email, password, clinicName, phone, medicalRegId } = req.body;
     
     const existingUser = await User.findOne({ email });
     if (existingUser) return res.status(400).json({ message: 'User already exists' });
@@ -18,17 +19,16 @@ router.post('/register', async (req, res) => {
       password, 
       clinicName, 
       phone,
-      isApproved: false // Explicitly set false
+      medicalRegId,
+      isApproved: true // Auto-approved for development/testing
     });
     
     await user.save();
-    res.status(201).json({ message: 'Registration successful. Waiting for Admin approval.' });
+    res.status(201).json({ message: 'Registration successful. You can now log in.' });
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
 });
-
-import Admin from '../models/Admin.js';
 
 // Login User
 router.post('/login', async (req, res) => {
