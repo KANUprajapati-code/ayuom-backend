@@ -20,11 +20,11 @@ router.post('/register', async (req, res) => {
       clinicName, 
       phone,
       medicalRegId,
-      isApproved: true // Auto-approved for development/testing
+      isApproved: false // Requires admin approval before login
     });
     
     await user.save();
-    res.status(201).json({ message: 'Registration successful. You can now log in.' });
+    res.status(201).json({ message: 'Registration successful. Your account is under review by our medical verification team. You will be able to log in once approved.' });
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
