@@ -2,14 +2,24 @@ import mongoose from 'mongoose';
 
 const homePageContentSchema = new mongoose.Schema({
   // HOME PAGE
-  heroBadge: { type: String, default: "Verified B2B Medical Hub" },
-  heroTitleLine1: { type: String, default: "Premium Medicine" },
-  heroTitleLine2: { type: String, default: "Sourcing for Doctors" },
-  heroDescription: { type: String, default: "Accelerate your clinic's supply chain with direct access to top-tier pharmaceuticals, transparent volume schemes, and lightning-fast logistics." },
-  primaryButtonText: { type: String, default: "Start Ordering" },
-  primaryButtonLink: { type: String, default: "/products" },
-  secondaryButtonText: { type: String, default: "Quick Order Mode" },
-  secondaryButtonLink: { type: String, default: "/quick-order" },
+  // HOME PAGE - HERO SLIDER
+  heroBanners: [{
+    imageUrl: { type: String, default: "" },
+    badge: { type: String, default: "Verified B2B Medical Hub" },
+    title1: { type: String, default: "Premium Medicine" },
+    title2: { type: String, default: "Sourcing for Doctors" },
+    description: { type: String, default: "Accelerate your clinic's supply chain with direct access to top-tier pharmaceuticals, transparent volume schemes, and lightning-fast logistics." },
+    btn1Text: { type: String, default: "Start Ordering" },
+    btn1Link: { type: String, default: "/products" },
+    btn2Text: { type: String, default: "Quick Order Mode" },
+    btn2Link: { type: String, default: "/quick-order" }
+  }],
+
+  // Hero Info Cards
+  card1Title: { type: String, default: "Professional Savings" },
+  card1Desc: { type: String, default: "Save up to 25% on bulk cardiac orders." },
+  card2Title: { type: String, default: "Instant Schemes" },
+  card2Desc: { type: String, default: "10+2 and 15% OFF applied in real-time." },
 
   schemesTitle: { type: String, default: "Top Schemes Today" },
   schemesSubtitle: { type: String, default: "Specially curated high-margin offers for your practice." },
