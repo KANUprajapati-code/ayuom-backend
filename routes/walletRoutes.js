@@ -2,7 +2,7 @@ import express from 'express';
 import { User } from '../models/User.js';
 import { WalletTransaction } from '../models/WalletTransaction.js';
 import { WithdrawalRequest } from '../models/WithdrawalRequest.js';
-import { protect } from '../middleware/authMiddleware.js';
+import { protect, adminOnly } from '../middleware/authMiddleware.js';
 
 const router = express.Router();
 
@@ -86,5 +86,50 @@ router.post('/convert-points', protect, async (req, res) => {
       res.status(500).json({ message: err.message });
     }
   });
+
+// Admin: Get all users wallet info
+router.get('/admin/users', protect, adminOnly, async (req, res) => {
+  try {
+    const users = await User.find({ role: 'user' }).select('name email phone clinicName walletBalance walletPoints');
+    res.json(users);
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+});
+
+// Admin: Adjust user balance/points manually
+router.post('/admin/adjust-balance/:userId', protect, adminOnly, async (req, res) => {
+  try {
+    const { type, amount, adjustField, reason } = req.body; // type: 'add'/'deduct', adjustField: 'balance'/'points'
+    const user = await User.findById(req.params.userId);
+
+    if (!user) return res.status(404).json({ message: 'User not found' });
+
+    let adjustmentAmount = Number(amount);
+    if (type === 'deduct') adjustmentAmount = -adjustmentAmount;
+
+    if (adjustField === 'balance') {
+      if (type === 'deduct' && user.walletBalance < amount) return res.status(400).json({ message: 'Insufficient balance' });
+      user.walletBalance += adjustmentAmount;
+    } else {
+      if (type === 'deduct' && user.walletPoints < amount) return res.status(400).json({ message: 'Insufficient points' });
+      user.walletPoints += adjustmentAmount;
+    }
+
+    await user.save();
+
+    await WalletTransaction.create({
+      userId: user._id,
+      amount: adjustmentAmount,
+      type: type === 'add' ? 'Earned' : 'Spent', // Using existing enums best fit
+      description: `Admin Adjustment: ${reason} (${adjustField})`,
+      status: 'Completed'
+    });
+
+    res.json({ message: `Successfully ${type}ed ${amount} ${adjustField}`, user });
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+});
 
 export default router;
