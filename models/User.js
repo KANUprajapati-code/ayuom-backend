@@ -9,7 +9,11 @@ const userSchema = new mongoose.Schema({
   isApproved: { type: Boolean, default: false },
   clinicName: { type: String },
   phone: { type: String },
-  medicalRegId: { type: String }
+  medicalRegId: { type: String },
+  walletBalance: { type: Number, default: 0 },
+  walletPoints: { type: Number, default: 0 },
+  referralCode: { type: String, unique: true, sparse: true },
+  referredBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User' }
 }, { timestamps: true });
 
 userSchema.pre('save', async function() {

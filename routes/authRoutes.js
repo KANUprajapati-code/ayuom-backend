@@ -3,15 +3,32 @@ import jwt from 'jsonwebtoken';
 import { User } from '../models/User.js';
 import Admin from '../models/Admin.js';
 
+import { WalletTransaction } from '../models/WalletTransaction.js';
+import crypto from 'crypto';
+
 const router = express.Router();
 
 // Register User
 router.post('/register', async (req, res) => {
   try {
-    const { name, email, password, clinicName, phone, medicalRegId } = req.body;
+    const { name, email, password, clinicName, phone, medicalRegId, referredByCode } = req.body;
     
     const existingUser = await User.findOne({ email });
     if (existingUser) return res.status(400).json({ message: 'User already exists' });
+
+    // Generate unique referral code
+    let referralCode;
+    let isCodeUnique = false;
+    while (!isCodeUnique) {
+      referralCode = name.substring(0, 3).toUpperCase() + crypto.randomBytes(2).toString('hex').toUpperCase();
+      const existingCode = await User.findOne({ referralCode });
+      if (!existingCode) isCodeUnique = true;
+    }
+
+    let referredByUser = null;
+    if (referredByCode) {
+      referredByUser = await User.findOne({ referralCode: referredByCode });
+    }
 
     const user = new User({ 
       name, 
@@ -20,11 +37,41 @@ router.post('/register', async (req, res) => {
       clinicName, 
       phone,
       medicalRegId,
+      referralCode,
+      referredBy: referredByUser ? referredByUser._id : null,
       isApproved: false // Requires admin approval before login
     });
     
-    await user.save();
-    res.status(201).json({ message: 'Registration successful. Your account is under review by our medical verification team. You will be able to log in once approved.' });
+    const savedUser = await user.save();
+
+    // Award bonus points if referred
+    if (referredByUser) {
+      // Award to Referrer
+      referredByUser.walletPoints += 50;
+      await referredByUser.save();
+      
+      await WalletTransaction.create({
+        userId: referredByUser._id,
+        amount: 50,
+        type: 'Referral',
+        description: `Referral bonus for inviting ${name}`,
+        status: 'Completed'
+      });
+
+      // Award to Referee
+      savedUser.walletPoints += 50;
+      await savedUser.save();
+
+      await WalletTransaction.create({
+        userId: savedUser._id,
+        amount: 50,
+        type: 'Referral',
+        description: `Welcome bonus for using referral code from ${referredByUser.name}`,
+        status: 'Completed'
+      });
+    }
+
+    res.status(201).json({ message: 'Registration successful. Your account is under review. You will be able to log in once approved.' });
   } catch (error) {
     res.status(500).json({ message: error.message });
   }

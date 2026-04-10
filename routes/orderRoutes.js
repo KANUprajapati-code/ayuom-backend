@@ -1,6 +1,8 @@
 import express from 'express';
 import { Order } from '../models/Order.js';
 import { Product } from '../models/Product.js';
+import { User } from '../models/User.js';
+import { WalletTransaction } from '../models/WalletTransaction.js';
 import { protect } from '../middleware/authMiddleware.js';
 
 const router = express.Router();
@@ -36,6 +38,23 @@ router.post('/', protect, async (req, res) => {
           { new: true }
         );
       }
+    }
+
+    // Award points (10% of totalAmount)
+    const pointsEarned = Math.floor(savedOrder.totalAmount * 0.1);
+    if (pointsEarned > 0) {
+      await User.findByIdAndUpdate(req.user.id, {
+        $inc: { walletPoints: pointsEarned }
+      });
+
+      await WalletTransaction.create({
+        userId: req.user.id,
+        amount: pointsEarned,
+        type: 'Earned',
+        description: `Points earned from Order #${savedOrder._id.toString().substring(18)}`,
+        referenceId: savedOrder._id,
+        status: 'Completed'
+      });
     }
 
     res.status(201).json(savedOrder);
