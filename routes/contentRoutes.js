@@ -26,7 +26,11 @@ router.put('/homepage', protect, adminOnly, async (req, res) => {
     if (!content) {
       content = new HomePageContent(req.body);
     } else {
-      Object.assign(content, req.body);
+      const updateData = { ...req.body };
+      // IMPORTANT: Prevent Modifying Immutable MongoDB fields
+      delete updateData._id;
+      delete updateData.__v;
+      Object.assign(content, updateData);
     }
     content.updatedBy = req.user.id;
     await content.save();
