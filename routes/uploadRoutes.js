@@ -1,22 +1,29 @@
 import express from 'express';
-import multer from 'multer';
 import { ImageModel } from '../models/Image.js';
 
 const router = express.Router();
-const storage = multer.memoryStorage();
-const upload = multer({ storage });
 
-// POST upload image
-router.post('/', upload.single('image'), async (req, res) => {
+// POST upload image (via Base64) to bypass Vercel serverless Multer issues
+router.post('/', async (req, res) => {
   try {
-    if (!req.file) {
-      return res.status(400).json({ message: 'No file uploaded' });
+    const { base64 } = req.body;
+    if (!base64) {
+      return res.status(400).json({ message: 'No image uploaded' });
     }
+    
+    // Parse the base64 string
+    const matches = base64.match(/^data:([A-Za-z-+\/]+);base64,(.+)$/);
+    if (!matches || matches.length !== 3) {
+      return res.status(400).json({ message: 'Invalid base64 string' });
+    }
+    
+    const contentType = matches[1];
+    const buffer = Buffer.from(matches[2], 'base64');
     
     // Save to MongoDB
     const newImage = new ImageModel({
-      data: req.file.buffer,
-      contentType: req.file.mimetype
+      data: buffer,
+      contentType: contentType
     });
     
     const savedImage = await newImage.save();
