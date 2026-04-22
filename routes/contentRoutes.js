@@ -10,7 +10,6 @@ router.get('/homepage', async (req, res) => {
   try {
     let content = await HomePageContent.findOne();
     if (!content) {
-      // Create default if it doesn't exist
       content = await HomePageContent.create({});
     }
     res.json(content);
@@ -27,7 +26,6 @@ router.put('/homepage', protect, adminOnly, async (req, res) => {
       content = new HomePageContent(req.body);
     } else {
       const updateData = { ...req.body };
-      // IMPORTANT: Prevent Modifying Immutable MongoDB fields
       delete updateData._id;
       delete updateData.__v;
       Object.assign(content, updateData);
@@ -56,23 +54,23 @@ router.get('/:key', async (req, res) => {
 // Update content by key (Admin only)
 router.put('/:key', protect, adminOnly, async (req, res) => {
   try {
-    const { title, subtitle, description, imageUrl } = req.body;
+    const updateData = { ...req.body };
+    // Prevent accidental key change or ID modification
+    delete updateData._id;
+    delete updateData.__v;
+    delete updateData.key;
+
     let content = await Content.findOne({ key: req.params.key });
 
     if (content) {
-      content.title = title || content.title;
-      content.subtitle = subtitle || content.subtitle;
-      content.description = description || content.description;
-      content.imageUrl = imageUrl || content.imageUrl;
+      // Flexible update - merges all fields from frontend
+      Object.assign(content, updateData);
       content.updatedBy = req.user.id;
       await content.save();
     } else {
       content = new Content({
         key: req.params.key,
-        title,
-        subtitle,
-        description,
-        imageUrl,
+        ...updateData,
         updatedBy: req.user.id
       });
       await content.save();

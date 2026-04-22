@@ -6,6 +6,7 @@ const contentSchema = new mongoose.Schema({
   subtitle: { type: String },
   description: { type: String },
   imageUrl: { type: String },
+  heroBanners: { type: Array, default: [] }, // NEW: Added support for multi-banner sliders
   updatedBy: { type: mongoose.Schema.Types.ObjectId, ref: 'Admin' }
 }, { timestamps: true });
 
