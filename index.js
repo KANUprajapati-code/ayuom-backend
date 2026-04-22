@@ -13,6 +13,7 @@ import pageRoutes from './routes/pageRoutes.js';
 import walletRoutes from './routes/walletRoutes.js';
 import promoRoutes from './routes/promoRoutes.js';
 import uploadRoutes from './routes/uploadRoutes.js';
+import brandRoutes from './routes/brandRoutes.js';
 
 dotenv.config();
 
@@ -72,6 +73,7 @@ app.use('/api/pages', pageRoutes);
 app.use('/api/wallet', walletRoutes);
 app.use('/api/promos', promoRoutes);
 app.use('/api/upload', uploadRoutes);
+app.use('/api/brands', brandRoutes);
 
 // Basic Route
 import bulkOrderRoutes from './routes/bulkOrderRoutes.js';
