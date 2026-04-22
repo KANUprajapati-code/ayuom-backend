@@ -2,7 +2,7 @@ import mongoose from 'mongoose';
 
 const contentSchema = new mongoose.Schema({
   key: { type: String, required: true, unique: true },
-  title: { type: String, required: true },
+  title: { type: String },
   subtitle: { type: String },
   description: { type: String },
   imageUrl: { type: String },
