@@ -5,13 +5,27 @@ import mongoose from 'mongoose';
 
 const router = express.Router();
 
-// Get all products
+// Get unique list of brands
+router.get('/brands', async (req, res) => {
+  try {
+    const brands = await Product.distinct('brand');
+    // Filter out null/empty and return sorted
+    const filteredBrands = brands.filter(b => b && b.trim() !== '').sort();
+    res.json(filteredBrands);
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+});
+
+// Get all products with filtering
 router.get('/', async (req, res) => {
-  const { category, minPrice, maxPrice, sort, placement } = req.query;
+  const { category, brand, minPrice, maxPrice, sort, placement } = req.query;
   
   try {
     let query = {};
     if (category && category !== 'All') query.category = category;
+    if (brand) query.brand = brand;
+    
     if (minPrice || maxPrice) {
       query.price = {};
       if (minPrice) query.price.$gte = Number(minPrice);
