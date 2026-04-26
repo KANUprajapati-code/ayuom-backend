@@ -8,10 +8,12 @@ const orderSchema = new mongoose.Schema({
   products: [{
     productId: { type: mongoose.Schema.Types.ObjectId, ref: 'Product' },
     name: String,
+    variantName: String,
     quantity: Number,
     price: Number
   }],
   totalAmount: { type: Number, required: true },
+  paymentMethod: { type: String, enum: ['COD', 'Prepaid'], default: 'COD' },
   status: { type: String, default: 'Pending' },
 }, { timestamps: true });
 

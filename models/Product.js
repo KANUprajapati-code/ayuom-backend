@@ -16,6 +16,16 @@ const productSchema = new mongoose.Schema({
   showOnShop: { type: Boolean, default: true },
   showOnHome: { type: Boolean, default: false },
   showOnSchemes: { type: Boolean, default: false },
+  variants: [{
+    name: { type: String, required: true }, // e.g. "30mg", "60mg", "500gm"
+    price: { type: Number, required: true },
+    originalPrice: { type: Number },
+    stock: { type: Number, default: 0 }
+  }],
+  schemeRules: [{
+    minUnits: { type: Number, required: true },
+    discountPercentage: { type: Number, required: true }
+  }]
 }, { timestamps: true });
 
 export const Product = mongoose.model('Product', productSchema);
