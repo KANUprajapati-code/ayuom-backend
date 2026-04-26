@@ -25,7 +25,11 @@ const productSchema = new mongoose.Schema({
   schemeRules: [{
     minUnits: { type: Number, required: true },
     discountPercentage: { type: Number, required: true }
-  }]
+  }],
+  freeUnitsScheme: {
+    buy: { type: Number },
+    free: { type: Number }
+  }
 }, { timestamps: true });
 
 export const Product = mongoose.model('Product', productSchema);
