@@ -4,6 +4,7 @@ const brandSchema = new mongoose.Schema({
   name: { type: String, required: true, unique: true },
   logoUrl: { type: String },
   description: { type: String },
+  mainCategory: { type: String, enum: ['Homeopathy', 'Ayurveda', 'Others'], default: 'Others' },
   status: { type: String, enum: ['Active', 'Inactive'], default: 'Active' },
   updatedBy: { type: mongoose.Schema.Types.ObjectId, ref: 'Admin' }
 }, { timestamps: true });
