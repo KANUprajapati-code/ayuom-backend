@@ -43,6 +43,16 @@ router.get('/users/pending', protect, adminOnly, async (req, res) => {
   }
 });
 
+// Get All Users
+router.get('/users/all', protect, adminOnly, async (req, res) => {
+  try {
+    const users = await User.find({ role: 'user' }).sort({ createdAt: -1 });
+    res.json(users);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+});
+
 // Approve User
 router.put('/users/:id/approve', protect, adminOnly, async (req, res) => {
   try {
