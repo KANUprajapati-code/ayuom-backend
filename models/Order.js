@@ -13,6 +13,8 @@ const orderSchema = new mongoose.Schema({
     price: Number
   }],
   totalAmount: { type: Number, required: true },
+  shippingCharge: { type: Number, default: 0 },
+  codCharge: { type: Number, default: 0 },
   paymentMethod: { type: String, enum: ['COD', 'Prepaid'], default: 'COD' },
   status: { type: String, default: 'Pending' },
 }, { timestamps: true });

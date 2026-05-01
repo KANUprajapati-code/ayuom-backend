@@ -192,4 +192,32 @@ router.get('/profile', protect, async (req, res) => {
   }
 });
 
+// Add new address
+router.post('/address', protect, async (req, res) => {
+  try {
+    const user = await User.findById(req.user.id);
+    if (!user) return res.status(404).json({ message: 'User not found' });
+
+    const newAddress = {
+      customerName: req.body.customerName,
+      phone: req.body.phone,
+      fullAddress: req.body.fullAddress,
+      city: req.body.city,
+      state: req.body.state,
+      pincode: req.body.pincode,
+      isDefault: req.body.isDefault || false
+    };
+
+    if (newAddress.isDefault) {
+      user.addresses.forEach(addr => addr.isDefault = false);
+    }
+
+    user.addresses.push(newAddress);
+    await user.save();
+    res.json(user.addresses);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+});
+
 export default router;

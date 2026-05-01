@@ -13,7 +13,16 @@ const userSchema = new mongoose.Schema({
   walletBalance: { type: Number, default: 0 },
   walletPoints: { type: Number, default: 0 },
   referralCode: { type: String, unique: true, sparse: true },
-  referredBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User' }
+  referredBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
+  addresses: [{
+    customerName: String,
+    phone: String,
+    fullAddress: String,
+    city: String,
+    state: String,
+    pincode: String,
+    isDefault: { type: Boolean, default: false }
+  }]
 }, { timestamps: true });
 
 userSchema.pre('save', async function() {
