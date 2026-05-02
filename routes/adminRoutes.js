@@ -3,6 +3,7 @@ import jwt from 'jsonwebtoken';
 import Admin from '../models/Admin.js';
 
 import { User } from '../models/User.js';
+import { WalletTransaction } from '../models/WalletTransaction.js';
 
 import { protect, adminOnly } from '../middleware/authMiddleware.js';
 
@@ -73,6 +74,37 @@ router.put('/users/:id/role', protect, adminOnly, async (req, res) => {
     
     const user = await User.findByIdAndUpdate(req.params.id, { role }, { new: true });
     res.json({ message: `User role updated to ${role}`, user });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+});
+
+// Manually Add Wallet Points
+router.put('/users/:id/wallet', protect, adminOnly, async (req, res) => {
+  try {
+    const { points, description } = req.body;
+    const amount = Number(points);
+    if (!amount || amount <= 0) {
+      return res.status(400).json({ message: 'Invalid points amount' });
+    }
+
+    const user = await User.findByIdAndUpdate(
+      req.params.id, 
+      { $inc: { walletPoints: amount } }, 
+      { new: true }
+    );
+
+    if (!user) return res.status(404).json({ message: 'User not found' });
+
+    await WalletTransaction.create({
+      userId: user._id,
+      amount: amount,
+      type: 'Earned',
+      description: description || 'Points credited by Administrator',
+      status: 'Completed'
+    });
+
+    res.json({ message: `Successfully added ${amount} points to ${user.name}'s wallet`, user });
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
