@@ -3,7 +3,7 @@ import { Order } from '../models/Order.js';
 import { Product } from '../models/Product.js';
 import { User } from '../models/User.js';
 import { WalletTransaction } from '../models/WalletTransaction.js';
-import { protect } from '../middleware/authMiddleware.js';
+import { protect, adminOnly } from '../middleware/authMiddleware.js';
 
 const router = express.Router();
 
@@ -60,6 +60,27 @@ router.post('/', protect, async (req, res) => {
     res.status(201).json(savedOrder);
   } catch (err) {
     res.status(400).json({ message: err.message });
+  }
+});
+
+// Admin: Get all orders
+router.get('/', protect, adminOnly, async (req, res) => {
+  try {
+    const orders = await Order.find().sort({ createdAt: -1 });
+    res.json(orders);
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+});
+
+// Admin: Update order status
+router.put('/:id/status', protect, adminOnly, async (req, res) => {
+  try {
+    const { status } = req.body;
+    const order = await Order.findByIdAndUpdate(req.params.id, { status }, { new: true });
+    res.json(order);
+  } catch (err) {
+    res.status(500).json({ message: err.message });
   }
 });
 
