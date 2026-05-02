@@ -90,7 +90,7 @@ router.put('/users/:id/wallet', protect, adminOnly, async (req, res) => {
 
     const user = await User.findByIdAndUpdate(
       req.params.id, 
-      { $inc: { walletPoints: amount } }, 
+      { $inc: { walletBalance: amount } }, 
       { new: true }
     );
 
@@ -100,7 +100,7 @@ router.put('/users/:id/wallet', protect, adminOnly, async (req, res) => {
       userId: user._id,
       amount: amount,
       type: 'Earned',
-      description: description || 'Points credited by Administrator',
+      description: description || 'Cash balance credited by Administrator',
       status: 'Completed'
     });
 
