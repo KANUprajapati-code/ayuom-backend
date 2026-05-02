@@ -37,9 +37,9 @@ router.post('/', protect, async (req, res) => {
       // Record transaction
       await WalletTransaction.create({
         userId: req.user.id,
-        amount: pointsUsed,
+        amount: -pointsUsed,
         type: 'Spent',
-        description: `Points redeemed for order`,
+        description: `Points redeemed for order discount`,
         status: 'Completed'
       });
     }
