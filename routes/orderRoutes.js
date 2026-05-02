@@ -44,13 +44,6 @@ router.post('/', protect, async (req, res) => {
       });
     }
     
-    // Create the order
-    const newOrder = new Order({
-      ...req.body,
-      userId: req.user.id
-    });
-    const savedOrder = await newOrder.save();
-
     // Decrement stock and calculate points dynamically based on product settings
     let pointsEarned = 0;
     if (products && Array.isArray(products)) {
@@ -69,22 +62,14 @@ router.post('/', protect, async (req, res) => {
         }
       }
     }
-
-    // Award points
-    if (pointsEarned > 0) {
-      await User.findByIdAndUpdate(req.user.id, {
-        $inc: { walletPoints: pointsEarned }
-      });
-
-      await WalletTransaction.create({
-        userId: req.user.id,
-        amount: pointsEarned,
-        type: 'Earned',
-        description: `Points earned from Order #${savedOrder._id.toString().substring(18)}`,
-        referenceId: savedOrder._id,
-        status: 'Completed'
-      });
-    }
+    
+    // Create the order
+    const newOrder = new Order({
+      ...req.body,
+      userId: req.user.id,
+      pointsToAward: pointsEarned
+    });
+    const savedOrder = await newOrder.save();
 
     res.status(201).json(savedOrder);
   } catch (err) {
@@ -106,8 +91,31 @@ router.get('/', protect, adminOnly, async (req, res) => {
 router.put('/:id/status', protect, adminOnly, async (req, res) => {
   try {
     const { status } = req.body;
-    const order = await Order.findByIdAndUpdate(req.params.id, { status }, { new: true });
-    res.json(order);
+    const order = await Order.findById(req.params.id);
+    if (!order) return res.status(404).json({ message: 'Order not found' });
+    
+    order.status = status;
+    
+    // Award points if marked as Delivered for the first time
+    if (status === 'Delivered' && !order.pointsAwarded && order.pointsToAward > 0) {
+      await User.findByIdAndUpdate(order.userId, {
+        $inc: { walletPoints: order.pointsToAward }
+      });
+
+      await WalletTransaction.create({
+        userId: order.userId,
+        amount: order.pointsToAward,
+        type: 'Earned',
+        description: `Points earned from Order #${order._id.toString().substring(18)} (Delivered)`,
+        referenceId: order._id,
+        status: 'Completed'
+      });
+      
+      order.pointsAwarded = true;
+    }
+    
+    const updatedOrder = await order.save();
+    res.json(updatedOrder);
   } catch (err) {
     res.status(500).json({ message: err.message });
   }

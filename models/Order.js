@@ -17,6 +17,8 @@ const orderSchema = new mongoose.Schema({
   codCharge: { type: Number, default: 0 },
   paymentMethod: { type: String, enum: ['COD', 'Prepaid'], default: 'COD' },
   status: { type: String, default: 'Pending' },
+  pointsToAward: { type: Number, default: 0 },
+  pointsAwarded: { type: Boolean, default: false }
 }, { timestamps: true });
 
 export const Order = mongoose.model('Order', orderSchema);
