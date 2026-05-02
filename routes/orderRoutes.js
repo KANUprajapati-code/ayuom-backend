@@ -29,19 +29,26 @@ router.post('/', protect, async (req, res) => {
     });
     const savedOrder = await newOrder.save();
 
-    // Decrement stock for each product
+    // Decrement stock and calculate points dynamically based on product settings
+    let pointsEarned = 0;
     if (products && Array.isArray(products)) {
       for (const item of products) {
-        await Product.findByIdAndUpdate(
-          item.productId,
-          { $inc: { stock: -Math.abs(item.quantity) } },
-          { new: true }
-        );
+        const dbProduct = await Product.findById(item.productId);
+        if (dbProduct) {
+          // Decrement stock
+          dbProduct.stock -= Math.abs(item.quantity);
+          await dbProduct.save();
+
+          // Calculate points if product has cashback percentage
+          if (dbProduct.walletCashbackPercentage && dbProduct.walletCashbackPercentage > 0) {
+            const itemTotal = item.price * item.quantity;
+            pointsEarned += Math.floor((itemTotal * dbProduct.walletCashbackPercentage) / 100);
+          }
+        }
       }
     }
 
-    // Award points (10% of totalAmount)
-    const pointsEarned = Math.floor(savedOrder.totalAmount * 0.1);
+    // Award points
     if (pointsEarned > 0) {
       await User.findByIdAndUpdate(req.user.id, {
         $inc: { walletPoints: pointsEarned }

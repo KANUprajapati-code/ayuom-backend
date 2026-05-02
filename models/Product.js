@@ -16,6 +16,7 @@ const productSchema = new mongoose.Schema({
   showOnShop: { type: Boolean, default: true },
   showOnHome: { type: Boolean, default: false },
   showOnSchemes: { type: Boolean, default: false },
+  walletCashbackPercentage: { type: Number, default: 0 },
   variants: [{
     name: { type: String, required: true }, // e.g. "30mg", "60mg", "500gm"
     price: { type: Number, required: true },
