@@ -20,7 +20,29 @@ router.get('/my-orders', protect, async (req, res) => {
 // Create new order (Record WhatsApp attempts and decrement stock)
 router.post('/', protect, async (req, res) => {
   try {
-    const { products } = req.body;
+    const { products, pointsUsed } = req.body;
+
+    // Handle wallet points redemption
+    if (pointsUsed && pointsUsed > 0) {
+      const userDoc = await User.findById(req.user.id);
+      if (userDoc.walletPoints < pointsUsed) {
+        return res.status(400).json({ message: 'Insufficient wallet points' });
+      }
+      
+      // Deduct points
+      await User.findByIdAndUpdate(req.user.id, {
+        $inc: { walletPoints: -pointsUsed }
+      });
+
+      // Record transaction
+      await WalletTransaction.create({
+        userId: req.user.id,
+        amount: pointsUsed,
+        type: 'Redeemed',
+        description: `Points redeemed for order`,
+        status: 'Completed'
+      });
+    }
     
     // Create the order
     const newOrder = new Order({
