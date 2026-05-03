@@ -37,7 +37,13 @@ router.get('/', async (req, res) => {
     else if (placement === 'schemes') query.showOnSchemes = true;
     else if (placement === 'shop') query.showOnShop = true;
 
-    let products = await Product.find(query);
+    let mongooseQuery = Product.find(query);
+    
+    if (req.query.compact === 'true') {
+      mongooseQuery = mongooseQuery.select('name stock category image');
+    }
+    
+    let products = await mongooseQuery;
     
     if (sort === 'priceLowHigh') products = products.sort((a,b) => a.price - b.price);
     if (sort === 'priceHighLow') products = products.sort((a,b) => b.price - a.price);
