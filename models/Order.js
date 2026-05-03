@@ -15,6 +15,7 @@ const orderSchema = new mongoose.Schema({
   totalAmount: { type: Number, required: true },
   shippingCharge: { type: Number, default: 0 },
   codCharge: { type: Number, default: 0 },
+  orderNote: { type: String },
   paymentMethod: { type: String, enum: ['COD', 'Prepaid'], default: 'COD' },
   status: { type: String, default: 'Pending' },
   pointsUsed: { type: Number, default: 0 },

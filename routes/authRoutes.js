@@ -220,4 +220,18 @@ router.post('/address', protect, async (req, res) => {
   }
 });
 
+// Delete address
+router.delete('/address/:addressId', protect, async (req, res) => {
+  try {
+    const user = await User.findById(req.user.id);
+    if (!user) return res.status(404).json({ message: 'User not found' });
+
+    user.addresses = user.addresses.filter(addr => addr._id.toString() !== req.params.addressId);
+    await user.save();
+    res.json(user.addresses);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+});
+
 export default router;
