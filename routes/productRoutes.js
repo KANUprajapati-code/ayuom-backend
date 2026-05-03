@@ -36,6 +36,11 @@ router.get('/', async (req, res) => {
     if (placement === 'home') query.showOnHome = true;
     else if (placement === 'schemes') query.showOnSchemes = true;
     else if (placement === 'shop') query.showOnShop = true;
+    else if (placement === 'featured') query.isFeatured = true;
+    else if (placement === 'trending') query.isTrending = true;
+
+    if (req.query.isFeatured === 'true') query.isFeatured = true;
+    if (req.query.isTrending === 'true') query.isTrending = true;
 
     let mongooseQuery = Product.find(query);
     

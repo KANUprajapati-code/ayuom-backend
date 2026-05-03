@@ -16,6 +16,8 @@ const productSchema = new mongoose.Schema({
   stock: { type: Number, default: 0 },
   showOnShop: { type: Boolean, default: true },
   showOnHome: { type: Boolean, default: false },
+  isFeatured: { type: Boolean, default: false },
+  isTrending: { type: Boolean, default: false },
   showOnSchemes: { type: Boolean, default: false },
   walletCashbackPercentage: { type: Number, default: 0 },
   variants: [{
